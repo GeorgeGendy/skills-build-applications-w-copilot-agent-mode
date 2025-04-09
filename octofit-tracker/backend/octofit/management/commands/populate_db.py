@@ -6,7 +6,6 @@ class Command(BaseCommand):
     help = 'Populate the database with test data'
 
     def handle(self, *args, **kwargs):
-        print('Command class loaded successfully')
         with open('octofit_tracker/test_data.json') as f:
             data = json.load(f)
 
@@ -18,8 +17,8 @@ class Command(BaseCommand):
         for team_data in data['teams']:
             members = User.objects.filter(username__in=team_data.pop('members'))
             team = Team.objects.create(**team_data)
-            # Convert User objects to dictionaries for ArrayField compatibility
-            team.members = [{'username': member.username, 'email': member.email} for member in members]
+            # Ensure members is a valid list of dictionaries, default to an empty list if no members
+            team.members = [{'username': member.username, 'email': member.email} for member in members] or []
             team.save()
 
         # Populate Activities
